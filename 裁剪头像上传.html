@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>裁剪头像上传</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+        /*滑动条背景*/
+        input[type="range"] {
+            outline: none;
+            display: block;
+            padding-top: 5px;
+            margin: 0 auto;
+            width: 180px;
+            height: 8px;
+            vertical-align: top;
+            background: transparent;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            cursor: pointer;
+        }
+        /*拖动块的样式*/
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.18);
+            box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.18);
+            -webkit-appearance: none;
+            appearance: none;
+            margin-top: -3px;
+            width: 12px;
+            height: 12px;
+            background-color: #61c091;
+            border-radius: 100%;
+            border: none;
+            -webkit-transition: 0.2s;
+            transition: 0.2s;
+        }
+        input[type="range"]::-moz-range-thumb {
+            box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.18);
+            -moz-appearance: none;
+            appearance: none;
+            width: 12px;
+            height: 12px;
+            background-color: #61c091;
+            border-radius: 100%;
+            border: none;
+            -webkit-transition: 0.2s;
+            transition: 0.2s;
+        }
+        input[type="range"]::-ms-thumb {
+            box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.18);
+            appearance: none;
+            width: 12px;
+            height: 12px;
+            background-color: #61c091;
+            border: none;
+            border-radius: 100%;
+            -webkit-transition: 0.2s;
+            transition: 0.2s;
+        }
+        input[type="range"]:active::-moz-range-thumb {
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.23);
+            width: 14px;
+            height: 14px;
+        }
+        input[type="range"]:active::-ms-thumb {
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.23);
+            width: 14px;
+            height: 14px;
+        }
+        input[type="range"]:active::-webkit-slider-thumb {
+            -webkit-box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.23);
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.23);
+            margin-top: -4px;
+            width: 14px;
+            height: 14px;
+        }
+        /* 背景 */
+        input[type="range"]::-webkit-slider-runnable-track {
+            -webkit-box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.12);
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.12);
+            width: 100%;
+            height: 6px;
+            cursor: pointer;
+            border-radius: 2px;
+            border: none;
+            background-color: rgba(68, 170, 119, 0.3);
+        }
+        input[type="range"]::-moz-range-track {
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.12);
+            width: 100%;
+            height: 6px;
+            cursor: pointer;
+            border-radius: 2px;
+            border: none;
+            background-color: rgba(68, 170, 119, 0.3);
+        }
+        input[type="range"]::-ms-track {
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.12);
+            width: 100%;
+            cursor: pointer;
+            background: transparent;
+            border-color: transparent;
+            color: transparent;
+            height: 6px;
+            border-radius: 2px;
+            border: none;
+        }
+        input[type="range"]::-ms-fill-lower {
+            background-color: rgba(68, 170, 119, 0.3);
+        }
+        /* 拖动后颜色 */
+        input[type="range"]::-ms-fill-upper {
+            background-color: rgba(68, 170, 119, 0.15);
+        }
+        input[type="range"]:focus::-webkit-slider-runnable-track {
+            background-color: rgba(68, 170, 119, 0.5);
+        }
+        input[type="range"]:focus::-moz-range-track {
+            background-color: rgba(68, 170, 119, 0.5);
+        }
+        input[type="range"]:focus::-ms-fill-lower {
+            background-color: rgba(68, 170, 119, 0.45);
+        }
+        input[type="range"]:focus::-ms-fill-upper {
+            background-color: rgba(68, 170, 119, 0.25);
+        }
+        .PreviewPanel {
+            width: 600px;
+            height: 330px;
+            padding: 25px;
+            box-sizing: border-box;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.23);
+            background-color: #fff;
+            border-radius: 2px;
+            display: none;
+        }
+
+        .PreviewPanel .PreviewWrap {
+            display:flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+        .PreviewPanel .cutwrap {
+            width: 240px;
+        }
+
+        .PreviewPanel .cutcontainer {
+            width: 240px;
+            height: 180px;
+            position: relative;
+            background-color: #fff;
+            overflow: hidden;
+        }
+        .PreviewPanel .cutcontainer img{
+            /* max-height:180px ;
+            max-width: 240px; */
+            position: absolute;
+            /* left: 50%;
+            top:50%;
+            transform: translate(-50%,-50%); */
+            z-index: 1;
+            user-select:none;
+            -webkit-user-drag: none;
+            cursor: move;
+        }
+        /* 坐标辅助点 */
+        .PreviewPanel .cutcontainer #zero{
+            position: absolute;
+            z-index: 2;
+            transform: translate(-50%,-50%); 
+            width: 16px;
+            height: 16px;
+            background:red;
+            border-radius: 50%;
+        }
+        .PreviewPanel .cutcontainer::before,
+        .PreviewPanel .cutcontainer::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            width: 30px;
+            height: 180px;
+            z-index: 2;
+            background-color: rgba(241, 242, 243, 0.8);
+        }
+
+        .PreviewPanel .cutcontainer::before {
+            left: 0;
+        }
+
+        .PreviewPanel .cutcontainer::after {
+            right: 0;
+        }
+
+        .PreviewPanel .scalerange {
+            text-align: center;
+        }
+
+        .PreviewPanel .scalerange input {
+            width: 180px;
+            height: 18px;
+            margin: 20px auto 30px auto;
+        }
+        .PreviewPanel .Previewarea{
+            width: 216px;
+            height: 180px;
+            display: flex;
+            gap: 16px;
+        }
+        .PreviewPanel .Previewarea .square,
+        .PreviewPanel .Previewarea .circular{
+            width: 100px;
+            height:100px;
+        }
+        .PreviewPanel .Previewarea img{
+            width: 100%;
+            height:100%;
+            padding: 3px;
+            display: block;
+            margin:0 auto;
+            background-color: #fff;
+            border: 1px solid rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+        }
+        .PreviewPanel .Previewarea .circular img{
+            border-radius: 50%;
+        }
+        .PreviewPanel .btns{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .PreviewPanel .btns a{
+            width: 100px;
+            height: 36px;
+            line-height: 36px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 14px;
+            color: #4a7;
+            border-radius: 2px;
+            text-decoration: none;
+        }
+        .PreviewPanel .btns a:hover{
+            background-color: rgba(0, 0, 0, 0.03);
+        }
+    </style>
+</head>
+
+<body>
+    <pre style="padding:30px;">
+1.确定上传按钮input,type=file.利用FileReader readAsDataURL onload得到地址显示裁剪预览面板。
+2.new Image() 通过onload获取图片原始像素及像素比 imgW=image.width imgH=image.height aspect=imgW/imgH.
+    根据短边原则 短边100%长边auto计算剧中left与top设置裁剪图宽高sL=Preview.offsetLeft sT=Preview.offsetTop
+    sW=Preview.offsetWidth sH=Preview.offsetHeight 初始画布坐标及缩放倍率x y scale0
+3.缩放sL系列参数影响宽高与left top 根据range倍数放大得到宽高，定位中心位置与range倍数坐标转换得到left top
+4.拖动sL2系列参数不影响宽高但影响left top拖动距离得到left top，
+    注意：先放大再拖动后再缩放需要sL sT 响应mx/scale my/scale
+5.上两步需要注意边界问题处理缩放边界，与拖动边界神烦
+6.定位确定后利用canvas裁图 参数 img x y w h cx cy cw ch
+    context.drawImage(Preview,x*scale0/scale,y*scale0/scale,containerW*scale0/scale,containerH*scale0/scale,0,0,canvas.width,canvas.height)
+7.上传图片canvas.toDataURL("image/png")转64,后database64文件格式转换为2进制 FormData append
+    最后ajax
+8.基本完成添加移动端事件
+    </pre>
+    选择上传图片<input id="uploadfile" type="file">
+    <br>
+    <div class="PreviewPanel">
+        <div class="PreviewWrap">
+            <div class="cutwrap">
+                <div class="cutcontainer">
+                    <img draggable="false" id="Preview" src="" alt="">
+                    <div id="zero"></div>
+                </div>
+                <div class="scalerange">
+                    <input id="scalerange" value="10" type="range" min="10" max="100">
+                </div>
+            </div>
+            <div class="Previewarea">
+                <div class="square">
+                    <img id="PreviewS" src="" alt="">
+                </div>
+                <div class="circular">
+                    <img id="PreviewC" src="" alt="">
+                </div>
+            </div>
+        </div>
+        <div class="btns">
+            <a id="saveIMG" href="javascript:;">保存</a>
+            <a id="cancelIMG" href="javascript:;">取消</a>
+        </div>
+    </div>
+    <canvas id="canvas" width="300" height="300" style="display: none;"></canvas>
+</body>
+
+</html>
+<script>
+    let uploadfile = document.querySelector('#uploadfile')
+    let image = new Image();
+    let Preview = document.querySelector('#Preview')
+    let PreviewS = document.querySelector('#PreviewS')
+    let PreviewC = document.querySelector('#PreviewC')
+    let scalerange = document.querySelector('#scalerange')
+    let save = document.querySelector('#saveIMG')
+    let cancel = document.querySelector('#cancelIMG')
+    let PreviewPanel=document.querySelector('.PreviewPanel')
+    let fileReader = new FileReader()
+    let canvas=document.querySelector("#canvas")
+    let context=canvas.getContext("2d")
+    let file,scale=1,imgurl,imgW,imgH,aspect,x=0,y=0,containerW=180,containerH=180,wp=30,scale0=1 ,sL,sT,sW,sH;
+    let cx=containerW/2+wp
+    let cy=containerH/2
+    let zero=document.querySelector('#zero')
+    zero.style.display="none"
+    let spx,spy,mouseon=false,mx=0,my=0
+    let sL2,sT2,sW2,sH2
+    fileReader.onload = function (e) {
+        PreviewPanel.style.display="block"
+
+        imgurl = e.target.result
+        image.src = imgurl
+        Preview.src = imgurl
+        // 重置放大
+        scalerange.value=1
+        scale=1
+        // Preview.style.transform=`translate(-50%,-50%) scale(${scale})`
+        // Preview.style.transform=`scale(${scale})`
+    }
+    // Preview.onload=function(e){
+    //     aspect=Preview.width/Preview.height
+    //     if(aspect>1){
+    //         Preview.style.height="100%"
+    //         Preview.style.width="auto"
+    //         x=(parseInt(Preview.offsetWidth)-containerW)/2
+    //         y=0
+            
+    //     }else{
+    //         Preview.style.height="auto"
+    //         Preview.style.width="100%"
+    //         x=0
+    //         y=(parseInt(Preview.offsetHeight)-containerH)/2
+    //     }
+    // }
+
+    image.onload=function(e){
+        imgW=image.width
+        imgH=image.height
+        aspect=imgW/imgH
+        if(aspect>1){
+            Preview.style.height="100%"
+            Preview.style.width="auto"
+            Preview.style.top=0+'px'
+            Preview.style.left=-(Preview.offsetWidth-containerW)/2+wp+'px'
+            x=(parseInt(Preview.offsetWidth)-containerW)/2
+            y=0
+            scale0=imgH/Preview.offsetHeight
+        }else{
+            Preview.style.height="auto"
+            Preview.style.width=containerW+"px"
+            Preview.style.top=-(Preview.offsetHeight-containerH)/2+'px'
+            Preview.style.left=wp+'px'
+            x=0
+            y=(parseInt(Preview.offsetHeight)-containerH)/2
+            scale0=imgW/Preview.offsetWidth
+        }
+        sL=Preview.offsetLeft
+        sT=Preview.offsetTop
+        sW=Preview.offsetWidth
+        sH=Preview.offsetHeight
+
+        sL2=Preview.offsetLeft
+        sT2=Preview.offsetTop
+        sW2=Preview.offsetWidth
+        sH2=Preview.offsetHeight
+
+        zero.style.left=cx+'px'
+        zero.style.top=cy+'px'
+        drawImage()
+    }
+
+
+    uploadfile.onchange = function (e) {
+        console.log('fileonchange')
+        console.log(e)
+        file = e.target.files[0]
+        console.log(file)
+        if(file){
+            fileReader.readAsDataURL(file)
+        }
+    }
+    // 裁剪图与预览图分开事件
+    // 放大缩小
+    scalerange.oninput = function (e) {
+        // 控制背景图放大倍数
+        // Preview.style.transform=`translate(-50%,-50%) scale(${scale})`
+        // Preview.style.transform=`scale(${scale})`
+        // 新方案放大图像，计算中心点重置width，height，left，top
+        // 中心点left，top +90
+        scale = e.target.value/10
+        Preview.style.height=sH*scale+'px'
+        Preview.style.width=sW*scale+'px'
+        sW2=Preview.offsetWidth
+        sH2=Preview.offsetHeight
+        if(cx-(cx-sL)*scale<-(sW2-containerW-wp)){
+            sL=cx-((sW2-containerW-wp)+cx)/scale
+        }
+        if(cx-(cx-sL)*scale>wp){
+            sL=cx-(cx-wp)/scale
+        }
+        // 提示Preview.offsetTop=sT+my
+
+        if(cy-(cy-sT)*scale<-(sH2-containerH)){
+            sT=cy-((sH2-containerH)+cy)/scale
+        }
+        if(cy-(cy-sT)*scale>0){
+            sT=cy-cy/scale
+        }
+        
+       
+        Preview.style.left=cx-(cx-sL)*scale+'px'
+        Preview.style.top=cy-(cy-sT)*scale+'px'
+
+
+    }
+    scalerange.onchange = function (e) {
+        // scale = e.target.value
+        // x=(parseInt(Preview.offsetWidth*scale)-containerW)/2
+        // y=(parseInt(Preview.offsetHeight*scale)-containerH)/2
+        x=wp-parseInt(Preview.style.left)
+        y=-parseInt(Preview.style.top)
+
+        drawImage()
+        // 生成预览图
+    }
+    // 绘制图片
+    function drawImage(){
+        // console.log(x,y)
+        context.drawImage(Preview,x*scale0/scale,y*scale0/scale,containerW*scale0/scale,containerH*scale0/scale,0,0,canvas.width,canvas.height)
+        // context.drawImage(Preview,x*scale0/scale,y*scale0/scale,containerW*scale0/scale,containerH*scale0/scale,0,0,containerW,containerH)
+        // context.drawImage(Preview,x,y,containerW,containerH)
+        PreviewS.src = canvas.toDataURL("image/png");
+        PreviewC.src = canvas.toDataURL("image/png");
+    }
+    // 拖动事件
+    Preview.onmousedown=function(e){
+        mouseon=true
+        spx=e.pageX
+        spy=e.pageY
+        sL2=Preview.offsetLeft
+        sT2=Preview.offsetTop
+        sW2=Preview.offsetWidth
+        sH2=Preview.offsetHeight
+    }
+    Preview.ontouchstart=function(e){
+        spx=e.touches[0].pageX
+        spy=e.touches[0].pageY
+        sL2=Preview.offsetLeft
+        sT2=Preview.offsetTop
+        sW2=Preview.offsetWidth
+        sH2=Preview.offsetHeight
+    }
+    Preview.onmousemove=function(e){
+        if(mouseon){
+            mx= e.pageX-spx
+            my= e.pageY-spy
+            // 提示Preview.offsetLeft=sL+mx
+            if(sL2+mx<-(sW2-containerW-wp)){
+                mx=-(sW2-containerW-wp)-sL2
+            }
+            if(sL2+mx>wp){
+                mx=wp-sL2
+            }
+            // 提示Preview.offsetTop=sT+my
+
+            if(sT2+my<-(sH2-containerH)){
+                my=-(sH2-containerH)-sT2
+            }
+            if(sT2+my>0){
+                my=0-sT2
+            }
+            Preview.style.left=sL2+mx+"px"
+            Preview.style.top=sT2+my+"px"
+        }
+    }
+    Preview.ontouchmove=function(e){
+        mx= e.touches[0].pageX-spx
+        my= e.touches[0].pageY-spy
+        // 提示Preview.offsetLeft=sL+mx
+        if(sL2+mx<-(sW2-containerW-wp)){
+            mx=-(sW2-containerW-wp)-sL2
+        }
+        if(sL2+mx>wp){
+            mx=wp-sL2
+        }
+        // 提示Preview.offsetTop=sT+my
+
+        if(sT2+my<-(sH2-containerH)){
+            my=-(sH2-containerH)-sT2
+        }
+        if(sT2+my>0){
+            my=0-sT2
+        }
+        Preview.style.left=sL2+mx+"px"
+        Preview.style.top=sT2+my+"px"
+    }
+    Preview.onmouseup=function(e){
+        if(mouseon){
+            mouseon=false
+            x=wp-parseInt(Preview.style.left)
+            y=-parseInt(Preview.style.top)
+            // 修改缩放前的left和top
+            sL=sL+mx/scale
+            sT=sT+my/scale
+            drawImage()
+        }
+    }
+    Preview.onmouseleave=function(e){
+        if(mouseon){
+            mouseon=false
+            x=wp-parseInt(Preview.style.left)
+            y=-parseInt(Preview.style.top)
+            sL=sL+mx/scale
+            sT=sT+my/scale
+            drawImage()
+        }
+    }
+    Preview.ontouchend=function(e){
+        x=wp-parseInt(Preview.style.left)
+        y=-parseInt(Preview.style.top)
+        sL=sL+mx/scale
+        sT=sT+my/scale
+        drawImage()
+    }
+
+    // 最终的上传database64文件格式转换为2进制
+    function b64ToUint8Array(b64Image) {
+        var img = atob(b64Image.split(',')[1]);
+        var img_buffer = [];
+        var i = 0;
+        while (i < img.length) {
+            img_buffer.push(img.charCodeAt(i));
+            i++;
+        }
+        return new Uint8Array(img_buffer);
+    }
+    function uploadIMG(){
+        var b64Image = canvas.toDataURL('image/jpeg');
+        var u8Image  = b64ToUint8Array(b64Image);
+        var formData = new FormData();
+        formData.append("image", new Blob([ u8Image ], {type: "image/jpg"}));
+        console.log(formData.get("image"))
+        return
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "/api/upload", true);
+        xhr.send(formData);
+    }
+    save.onclick=function(){
+        if(imgurl){
+            uploadIMG()
+        }
+    }
+    cancel.onclick=function(){
+        PreviewPanel.style.display="none"
+        if(imgurl){
+            
+        }
+    }
+
+
+
+</script>
